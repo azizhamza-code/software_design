@@ -1,35 +1,24 @@
-# Dictionary-Based OOP Implementation
+# Dict-Based OOP
 
-This project implements Object-Oriented Programming principles using Python dictionaries, demonstrating how OOP concepts work under the hood.
+Minimal implementation of OOP concepts using Python dictionaries.
 
-## Core Concepts
+## Core
 
-- **Classes**: Dictionaries with methods (functions) and attributes (key-value pairs)
-- **Inheritance**: Implemented via `parent` references in class dictionaries
-- **Polymorphism**: Methods are looked up dynamically in the inheritance chain
-- **Method Types**: Instance methods, static methods, and class methods
-
-## Key Functions
-
-- `make(cls, *args)`: Create new instances
-- `call(obj, method, *args)`: Execute methods on objects
-- `find(cls, method)`: Locate methods in the class hierarchy with caching
+- `make(cls, *args)`: Create instances
+- `call(obj, method, *args)`: Execute methods
+- `find(cls, method)`: Method lookup with caching
 
 ## Example
 
 ```python
-# Create an instance
+# Instance creation and method calls
 square = make(Square, "my_square", 5)
+perimeter = call(square, "perimeter")  # 20
+doubled = call(square, "multiply_by_two", 4)  # 8
+description = call(Square, "get_description")  # class description
 
-# Call instance method
-perimeter = call(square, "perimeter")  # Returns 20
-
-# Call static method
-doubled = call(square, "multiply_by_two", 4)  # Returns 8
-
-# Call class method
-description = call(Square, "get_description")  # Returns class description
+# Type checking
+type_(square)  # "Square"
+isinstance_(square, Shape)  # True
 ```
-
-This implementation demonstrates how OOP concepts can be implemented from scratch using only dictionaries and functions, providing insight into how OOP languages work under the hood.
 
