@@ -1,4 +1,4 @@
-from matching import Lit,Any
+from .matching import Lit, Any, Plus, Fromset
 
 def test_literal_match_entire_string():
     # /abc/ matches "abc"
@@ -39,3 +39,15 @@ def test_any_matches_as_suffix():
 def test_any_matches_interior():
     # /a*c/ matches "abc"
     assert Lit("a", Any(Lit("c"))).match("abc")
+
+def test_plus_matches():
+
+    assert Lit("a", Plus(Lit("c"))).match("afc")
+
+def test_from_set():
+    
+    assert Lit("a", Fromset("erf", Lit("a"))).match("afa")
+
+def test_from_set():
+    
+    assert Lit("a", Fromset("erf", Lit("a"))).match("afa")

@@ -15,9 +15,11 @@ class Lit:
 class Any:
     def __init__(self, rest=None):
         self.rest = rest
+        self._cash = {}
 
     def match(self, char, start=0):
-
+        memo = {}
+        key = id(self.rest.char)
         if self.rest is None:
             return True
         for i in range(start,len(char)):
@@ -41,6 +43,11 @@ class Match:
     def __init__(self, rest):
         self.rest = rest if rest is not None else Null()
 
+    def __eq__(self, other):
+        return (other is not None and
+                self.__class__ == other.__class__ and
+                self.rest == other.rest)
+
     def match(self, text):
         result = self._match(text, 0)
         return result ==len(text)
@@ -51,6 +58,17 @@ class Null(Match):
 
     def _match(self, text, start):
         return start
+    
+class Plus(Match):
+    def __init__(self, rest):
+        super().__init__(rest)
+    
+    def _match(self, char, start):
+        for i in range(start + 1 , len(char)+ 1):
+            end = self.rest._match(char, i)
+            if end == len (char):
+                return end
+        return None
 
 
 class Lit(Match):
@@ -58,16 +76,47 @@ class Lit(Match):
         super().__init__(rest)
         self.chars = chars
 
+    def __eq__(self, other):
+        return super().__eq__(other) and (
+            self.chars == other.chars
+        )
+
     def _match(self, text, start):
         end = start + len(self.chars)
         if text[start:end] != self.chars:
             return None
         return self.rest._match(text, end)
+    
+class Fromset(Match):
+    def __init__(self, chars, rest=None):
+        super().__init__(rest)
+        self.chars = chars
+
+    def _match(self, text, start):
+        if text[start] not in self.chars:
+            return None
+        return self.rest._match(text, start+1)
+        
+
+
+class Range(Match):
+    Minuscules = "abcdefghijklmnopqrstuvwxyz"
+    def __init__(self, start, end, rest = None):
+        super().__init__(rest)
+        self.start = start
+        self.end = end
+
+    def _match(self, text, start):
+        if text[start] not in self.Minuscules[self.Minuscules.index(self.start): self.Minuscules.index(self.end)]:
+            return None
+        return self.rest._match(text, start+1)
+
 
 
 class Any(Match):
     def __init__(self, rest=None):
         super().__init__(rest)
+        self._cache = {}
 
     def _match(self, char, start):
         for i in range(start, len(char)+ 1):
@@ -76,14 +125,28 @@ class Any(Match):
                 return end
         return None
     
-class Either(Match):
-    def __init__(self, left, right, rest=None):
-        super().__init__(rest)
-        self.left = left
-        self.right = right
+
+    
+
+class Not(Match):
+    def __init__(self, pattern:Match):
+        super().__init__(None)
+        self.pattern = pattern
 
     def _match(self, text, start):
-        for pat in [self.left, self.right]:
+        if self.pattern.match(text):
+            return None
+        return self.rest._match(text, len(text))
+        
+            
+
+class Either(Match):
+    def __init__(self, pattern:list,  rest=None):
+        super().__init__(rest)
+        self.pattern = pattern
+
+    def _match(self, text, start):
+        for pat in self.pattern:
             end = pat._match(text, start)
             if end is not None:
                 end = self.rest._match(text, end)
