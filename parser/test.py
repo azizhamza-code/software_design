@@ -1,7 +1,7 @@
 from .tokenizer import  Tokenizer
 from .parser import Parser
 from software_design.matching import Null, Lit, Either, Any
-from .utils import ListNested
+from .utils import ListNested, ParserList
 
 
 def test_tok_empty_string():
@@ -48,10 +48,17 @@ def test_list_characteres():
 def test_netsed_list():
     assert ListNested().process_nested_liest("[43,[343,98],554]") == [
         ["StartList"],
-        ["Lit", "43,"],
+        ["Lit", "43"],
         ["StartList"],
-        ["Lit", "343,98"],
+        ["Lit", "343"],
+        ["Lit", "98"],
         ["EndList"],
-        ["Lit",",554"],
-        ["EndList"]
+        ["Lit", "554"],
+        ["EndList"],
     ]
+
+def test_nested_list_parser():
+    assert ParserList().parse("[43,[343,98],554]") == [43,[343,98],554]
+
+def test_nested_list_parser_():
+    assert ParserList().parse("[[343,98],554]") == [[343, 98], 554]
