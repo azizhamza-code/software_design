@@ -1,4 +1,5 @@
 from test import run_test
+import time
 
 # Add test functions to test our test framework
 def not_a_test_function():
@@ -12,6 +13,9 @@ def test_fail_dummy():
 
 def test_error_dummy():
     return 1 / 0
+
+def test_slow_dummy():
+    time.sleep(0.1)  # sleep for 100ms
 
 
 def test_framework_identifies_test_functions():
@@ -83,6 +87,31 @@ def test_setup_teardown():
     assert len(setup_calls) == 2, f"Setup should be called twice, was called {len(setup_calls)} times"
     assert len(teardown_calls) == 2, f"Teardown should be called twice, was called {len(teardown_calls)} times"
 
+def test_timing():
+    import test
+    original_globals = test.__dict__.copy()
+    
+    # Create test environment
+    test.__dict__.clear()
+    test.__dict__['test_fast'] = lambda: None
+    test.__dict__['test_slow'] = test_slow_dummy
+    
+    result = run_test()
+    
+    # Restore original globals
+    test.__dict__.clear()
+    test.__dict__.update(original_globals)
+    
+    # Verify timing information is recorded
+    assert "test_fast" in result["pass_times"]
+    assert "test_slow" in result["pass_times"]
+    
+    # Verify the slow test takes longer than the fast test
+    assert result["pass_times"]["test_slow"] > result["pass_times"]["test_fast"]
+    
+    # Verify the slow test takes at least 0.05 seconds (allowing some margin)
+    assert result["pass_times"]["test_slow"] >= 0.05, f"Slow test should take at least 0.05s, took {result['pass_times']['test_slow']}s"
+
 if __name__ == "__main__":
     try:
         test_framework_identifies_test_functions()
@@ -100,4 +129,10 @@ if __name__ == "__main__":
         test_setup_teardown()
         print("test_setup_teardown: PASS")
     except Exception as e:
-        print(f"test_setup_teardown: FAIL - {e}") 
+        print(f"test_setup_teardown: FAIL - {e}")
+        
+    try:
+        test_timing()
+        print("test_timing: PASS")
+    except Exception as e:
+        print(f"test_timing: FAIL - {e}") 
