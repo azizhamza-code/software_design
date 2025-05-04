@@ -1,4 +1,5 @@
-import sys, json
+import sys, json, array
+import code
 
 def do_add(env, args):
     assert len(args) == 2
@@ -30,6 +31,29 @@ def do_seq(env, args):
         result = do(env, item)
     return result
 
+def do_array(env, args):
+    assert len(args) == 1
+    dim = do(env, args[0])
+    result = array.array('b', [0 for _ in range(dim)])
+    return result
+
+def do_get_array(env, args):
+    assert len(args) == 2
+    assert type(args[0]) is str
+    index = do(env, args[1])
+    array = do_get(env ,args[0])
+    value = array[index]
+    return value
+
+def do_set_array(env, args):
+    assert len(args) == 3
+    assert type(args[0]) is str
+    index = do(env, args[1])
+    value = do(env, args[2])
+    array = do_get(env ,args[:1])
+    array[index] = value
+    return array
+
 OPS = {
     name.replace("do_", ""): func
     for (name, func) in globals().items()
@@ -40,7 +64,6 @@ def do(env, expr):
     if isinstance(expr, int):
         return expr
     assert isinstance(expr, list)
-    print(OPS)
     assert expr[0] in OPS, f"Unknown operation {expr[0]}"
     func = OPS[expr[0]]
     return func(env, expr[1:])
