@@ -1,6 +1,25 @@
 [
-    "seq",
-    ["set", "array", ["array", 5]],
-    ["set_array", "array", 3,  5]
+	"seq",
+	[
+		"set",
+		"array",
+		[
+			"array",
+			5
+		]
+	],
+	[
+		"set_array",
+		"array",
+		3,
+		5
+	],
+	[
+		"print",
+		"initial",
+		[
+			"get",
+			"array"
+		]
+	]
 ]
-

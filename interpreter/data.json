@@ -1,9 +1,1 @@
-[
-    "seq",
-    ["set", "alpha", 1],
-    ["set", "beta", 2],
-    ["set" , "gamma" , ["add", ["get", "alpha"], ["get", "beta"]]],
-    ["set", "array", ["array", 5]],
-    ["set_array", "array", 3, ["get", "gamma"]]
-]
-
+["repeat", 0, ["print", "zero"]]
