@@ -60,11 +60,10 @@ def do_array(env, args):
 
 def do_get_array(env, args):
     check(len(args) == 2, "Operation 'get_array' requires exactly 2 arguments")
-    import pdb; pdb.set_trace()
     check(type(args[0]) is str, "First argument must be a string")
     index = do(env, args[1])
     array = do_get(env, args[0])
-    value = array[:index]
+    value = array[index]
     log(env.get("trace", False), f"get_array at index {index}: {value}")
     return value
 
@@ -99,6 +98,24 @@ def do_if(env, args):
         do(env, args[1])
     else:
         do(env, args[2])
+
+def do_lower(env, args):
+    check(len(args)==2, "number of param must be two")
+    right = do(env, args[0])
+    print(right)
+    left = do (env, args[1])
+    return right < left
+
+def do_while(env, args):
+    print(args)
+    check(len(args)==2, "while whait for two argument")
+    condition = do(env, args[0])
+    log(env["trace"], f"before while / {condition}")
+    while condition:
+        
+        do(env , args[1])
+        condition = do(env, args[0])
+
 
 def do_leq(env, args):
     check(len(args) == 2, "need two args to be comparred")
@@ -140,7 +157,7 @@ def main():
     with open(file_path, "r") as reader:
         program = json.load(reader)
 
-    env= {}
+    env = {"trace": args.trace}
     try:
         result = do(env, program)
         print(f"=> {result}")

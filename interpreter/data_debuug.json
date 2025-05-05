@@ -21,5 +21,33 @@
 			"get",
 			"array"
 		]
+	],
+
+	[
+		"set",
+		"alpha",
+		-1
+	],
+	[
+		"while",
+		[
+			"lower",
+			0,
+			[
+				"get_array",
+				"array",
+				3
+			]
+		],
+			[
+				"set_array",
+				"array",
+				3,
+				[
+					"add",
+					["get_array", "array", 3],
+					["get", "alpha"]
+				]
+			]
 	]
 ]
