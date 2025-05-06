@@ -1,6 +1,6 @@
 import sys, json, array
 import os
-
+from collections import ChainMap
 class TLLException(Exception):
     pass
 
@@ -14,18 +14,18 @@ def log(flag, message):
 
 def do_add(env, args):
     check(len(args) == 2, "Operation 'add' requires exactly 2 arguments")
-    log(env.get("trace", False), f"adding {args[0]} and {args[1]}")
+    log(env.get("trace", True), f"adding {args[0]} and {args[1]}")
     left = do(env, args[0])
     right = do(env, args[1])
     result = left + right
-    log(env.get("trace", False), f"result of add: {result}")
+    log(env.get("trace", True), f"result of add: {result}")
     return result
 
 def do_abs(env, args):
     check(len(args) == 1, "Operation 'abs' requires exactly 1 argument")
     val = do(env, args[0])
     result = abs(val)
-    log(env.get("trace", False), f"result of abs: {result}")
+    log(env.get("trace", True), f"result of abs: {result}")
     return result
 
 def do_get(env, args):
@@ -33,7 +33,7 @@ def do_get(env, args):
     check(args in env if isinstance(args, str) else args[0] in env, "args is not present in env")
     result = env[args if isinstance(args, str) else args[0]]
 
-    log(env.get("trace", False), f"result of get: {result}")
+    log(env.get("trace", True), f"result of get: {result}")
     return result
 
 def do_set(env, args):
@@ -41,21 +41,21 @@ def do_set(env, args):
     check(isinstance(args[0], str), "First argument must be a string")
     value = do(env, args[1])
     env[args[0]] = value
-    log(env.get("trace", False), f"set {args[0]} to {value}")
+    log(env.get("trace", True), f"set {args[0]} to {value}")
     return value
 
 def do_seq(env, args):
     check(len(args) > 0, "Operation 'seq' requires at least 1 argument")
     for item in args:
         result = do(env, item)
-    log(env.get("trace", False), f"result of seq: {result}")
+    log(env.get("trace", True), f"result of seq: {result}")
     return result
 
 def do_array(env, args):
     check(len(args) == 1, "Operation 'array' requires exactly 1 argument")
     dim = do(env, args[0])
     result = array.array('b', [0 for _ in range(dim)])
-    log(env.get("trace", False), f"created array of size {dim}")
+    log(env.get("trace", True), f"created array of size {dim}")
     return result
 
 def do_get_array(env, args):
@@ -64,7 +64,7 @@ def do_get_array(env, args):
     index = do(env, args[1])
     array = do_get(env, args[0])
     value = array[index]
-    log(env.get("trace", False), f"get_array at index {index}: {value}")
+    log(env.get("trace", True), f"get_array at index {index}: {value}")
     return value
 
 def do_set_array(env, args):
@@ -74,26 +74,26 @@ def do_set_array(env, args):
     value = do(env, args[2])
     array = do_get(env, args[0])
     array[index] = value
-    log(env.get("trace", False), f"set_array at index {index} to {value}")
+    log(env.get("trace", True), f"set_array at index {index} to {value}")
     return array
 
 def do_print(env, args):
     check(len(args) == 2, "print function wait for two args , name and value")
     value = do(env, args[1])
-    log(env.get("trace", False), f"printing: {args[0]} {value}")
+    log(env.get("trace", True), f"printing: {args[0]} {value}")
     print(f"{args[0]} {value}")
 
 def do_repeat(env, args):
     check(len(args) == 2, "the number of args to iter is 2")
     iteration = do(env, args[0])
-    log(env.get("trace", False), f"repeating {iteration} times")
+    log(env.get("trace", True), f"repeating {iteration} times")
     for iter_ in range(iteration):
         do(env, args[1])
 
 def do_if(env, args):
     check(len(args) == 3, "if statement has to have exactly 3 element")
     result_condition = do(env, args[0])
-    log(env.get("trace", False), f"if condition: {result_condition}")
+    log(env.get("trace", True), f"if condition: {result_condition}")
     if result_condition:
         do(env, args[1])
     else:
@@ -112,9 +112,36 @@ def do_while(env, args):
     condition = do(env, args[0])
     log(env["trace"], f"before while / {condition}")
     while condition:
-        
         do(env , args[1])
         condition = do(env, args[0])
+
+def do_func(env, args):
+    assert len(args) == 2
+    params = args[0]
+    body = args[1]
+    return ["func", params, body]
+
+def do_call(env:ChainMap, args):
+
+    assert len(args) >= 1
+    name = args[0]
+    values = [do(env, a) for a in args[1:]]
+
+    func = env_get(env, name)
+    assert isinstance(func, list) and (func[0] == "func")
+    params, body = func[1], func[2]
+    assert len(values) == len(params)
+
+    local = dict(zip(params, values))
+    local_func_env = env.copy()
+    local_func_env.update(local)
+    
+    result = do(local_func_env, body)
+
+    return result
+
+def env_get(env, name):
+    return env[name]
 
 
 def do_leq(env, args):
@@ -122,7 +149,7 @@ def do_leq(env, args):
     right = do(env, args[0])
     left = do(env, args[1])
     result = right == left
-    log(env.get("trace", False), f"leq comparison: {right} == {left} -> {result}")
+    log(env.get("trace", True), f"leq comparison: {right} == {left} -> {result}")
     return result
 
 OPS = {
@@ -138,7 +165,7 @@ def do(env, expr):
     check(isinstance(expr, list), "Expression must be a list")
     check(expr[0] in OPS, f"Unknown operation {expr[0]}")
     func = OPS[expr[0]]
-    log(env.get("trace", False), f"executing operation: {expr[0]}")
+    log(env.get("trace", True), f"executing operation: {expr[0]}")
     return func(env, expr[1:])
 
 def main():
@@ -157,7 +184,8 @@ def main():
     with open(file_path, "r") as reader:
         program = json.load(reader)
 
-    env = {"trace": args.trace}
+    conf = {"trace": args.trace}
+    env = ChainMap(conf)
     try:
         result = do(env, program)
         print(f"=> {result}")
