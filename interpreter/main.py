@@ -40,6 +40,10 @@ def do_set(env, args):
     check(len(args) == 2, "Operation 'set' requires exactly 2 arguments")
     check(isinstance(args[0], str), "First argument must be a string")
     value = do(env, args[1])
+    if value is list :
+        if value[0] == 'func':
+            if args[0] in env:
+                raise TLLException(f"function name {args[0] } alredy exist in env")
     env[args[0]] = value
     log(env.get("trace", True), f"set {args[0]} to {value}")
     return value
@@ -116,10 +120,16 @@ def do_while(env, args):
         condition = do(env, args[0])
 
 def do_func(env, args):
-    assert len(args) == 2
-    params = args[0]
-    body = args[1]
-    return ["func", params, body]
+    check(len(args)==2 or len(args)==3 , "function creation requir two or three argument")
+    if len(args) == 2 : 
+        params = args[0]
+        body = args[1]
+        return ["func", params, body]
+    elif len(args) >= 3 : 
+            params = args[1]
+            result  = ["seq", *args[2:]]
+            return ["set", args[0], ["func", params, result] ]
+
 
 def do_call(env:ChainMap, args):
 
@@ -135,7 +145,7 @@ def do_call(env:ChainMap, args):
     local = dict(zip(params, values))
     local_func_env = env.copy()
     local_func_env.update(local)
-    
+
     result = do(local_func_env, body)
 
     return result
@@ -174,7 +184,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--trace', action='store_true')
-    parser.add_argument('-file_name', default='data_debuug.json')
+    parser.add_argument('-file_name', default='func.json')
 
     args = parser.parse_args()
     

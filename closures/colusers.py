@@ -4,9 +4,6 @@ class NotInTheClass(Exception):
 class NotSameType(Exception):
     pass
 
-
-
-
 def make_object(initial_value, **kwargs):
     private = {"value": initial_value}
     private.update(kwargs)

@@ -4,6 +4,11 @@
       ["add", ["get", "num"], ["get", "num"]]
     ]
   ],
+  ["set", "double",
+  ["func", ["num"],
+    ["add", ["get", "num"], ["get", "num"]]
+  ]
+],
   ["set", "a", 1],
   ["repeat", 4, ["seq",
     ["set", "a", ["call", "double", ["get", "a"]]],

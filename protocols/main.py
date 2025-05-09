@@ -21,8 +21,21 @@ def warp(func:callable)-> callable:
 def originale(value:str):
     print(f"from original {value}")
 
+def decorator_withparam(label):
+    def actual_decorator(func):
+        def __inner(args):
+            print(label)
+            func(args)
+        return __inner
+    return actual_decorator
+
+@decorator_withparam("this a lable")
+def double(x):
+    print(f"result is {x*2}")
+
 
 if __name__ == '__main__':
     originale("value")
+    double("test") 
 
     

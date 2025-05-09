@@ -19,3 +19,9 @@ A minimal implementation of OOP principles using only Python dictionaries and fu
 
 ## Planned Implementations
 
+
+
+protocols :
+- [context manager] 
+- [iterators]
+- [decorators] 
