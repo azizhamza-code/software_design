@@ -58,13 +58,13 @@ class Archive:
                 shutil.copy(source_path, backup_path)
 
 
-class ArchiveIndex:
+class ArchiveIndex(Archive):
     def __init__(self, source_dir):
         super().__init__(source_dir)
 
     def backup(self, backup_dir):
         manifest = hash_all(self.source_dir)
-        index = self.get_index(backup_dir)
+        index = get_index(backup_dir)
         self._write_manifest(backup_dir, index, index)
         self._copy_files(self.source_dir, backup_dir, manifest)
         return manifest

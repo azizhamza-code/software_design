@@ -6,6 +6,7 @@ from file import hash_all, HASH_LEN, Archive
 from unittest.mock import patch
 import os
 from file import get_index
+from file import ArchiveIndex
 
 @pytest.fixture
 def our_fs_1(fs):
@@ -48,7 +49,6 @@ def test_our_fs(our_fs):
     assert Path(backup_file_name).exists
 
 def test_index(our_fs):
-
     assert get_index(backup_dir) == "0000000003"
 
 
@@ -58,5 +58,14 @@ def test_nested_example(our_fs):
         backup = Archive(".")
         manifest = backup.backup("/backup")
     assert Path("/backup", f"{timestamp}.csv").exists()
+    for filename, hash_code in manifest:
+        assert Path("/backup", f"{hash_code}.bck").exists()
+
+def test_the_nex_archive_index(our_fs):
+    next_index = "0000000003"
+    with patch("file.get_index", return_value=next_index):
+        backup = ArchiveIndex(".")
+        manifest = backup.backup("/backup")
+        assert Path("/backup", f"{next_index}.csv").exists()
     for filename, hash_code in manifest:
         assert Path("/backup", f"{hash_code}.bck").exists()
