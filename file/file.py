@@ -5,6 +5,7 @@ import hashlib
 from time import time
 import csv
 import shutil
+import getpass
 
 HASH_LEN = 16
 INDEX_LEN = 10
@@ -21,20 +22,9 @@ def get_index(backup_dir)->str:
     current_index= max(files_index)
     return '0' * (INDEX_LEN - len(str(current_index + 1))) + str(current_index + 1)
 
-def manifest_migration(backup_dir):
-    for file in glob.glob("**/*.csv", root_dir= backup_dir, recursive=True):
-        path_file = Path(backup_dir, file)
-        dict_file = {}
-        with open(path_file, "r") as csv_file:
-            reader:csv._reader = csv.reader(csv_file)
-            for file_name, hash  in reader:
-                if file_name != "filename":
-                    dict_file[file_name] = hash
-        json_path_file = Path(backup_dir, file.replace("csv", "json"))
-        with open(json_path_file, "w") as json_writer : 
-            json.dump(dict_file, json_writer)
 
-                
+def get_user_profile_name()->str:
+    return getpass.getuser()
 
 def list_of_tupe_to_dict(data)-> dict:
     return {k:v for (k,v) in data}
@@ -65,13 +55,16 @@ class Archive:
         if not backup_dir.exists():
             backup_dir.mkdir()
         if format == "csv":
+            import getpass
             manifest_file = Path(backup_dir, f"{timestemp}.csv")
             with open(manifest_file, "w") as raw:
                 writer = csv.writer(raw)
+                writer.writerow(["user_name", getpass.getuser()])
                 writer.writerow(["filename", "hash"])
                 writer.writerows(manifest)
         elif format =="json": 
             manifest_file = Path(backup_dir, f"{timestemp}.json")
+            json.dump({"user_name": getpass.getuser()})
             with open(manifest_file, "w") as raw:
                 json.dump(list_of_tupe_to_dict(manifest), raw)
 

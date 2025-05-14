@@ -1,13 +1,12 @@
 import pytest
 import pyfakefs
-import file
 import json
 from pathlib import Path
-from file import hash_all, HASH_LEN, Archive
+from .file import hash_all, HASH_LEN, Archive
 from unittest.mock import patch
 import os
-from file import get_index
-from file import ArchiveIndex, list_of_tupe_to_dict, manifest_migration
+from .file import get_index
+from .file import ArchiveIndex, list_of_tupe_to_dict
 
 @pytest.fixture
 def our_fs_1(fs):
@@ -45,8 +44,6 @@ def our_fs(fs):
     for name, contents in BACKUP_DIR_MANIFEST_FILE.items():
         fs.create_file(Path(backup_dir, name), contents=contents)
 
-def test_manifest_migration(our_fs):
-    manifest_migration("/backup")
 
 @pytest.fixture
 def manifest():
