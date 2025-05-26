@@ -2,6 +2,7 @@ from pathlib import Path
 import glob
 import csv
 import json
+import getpass
 
 def manifest_migration_csv_to_json(backup_dir):
     for file in glob.glob("**/*.csv", root_dir= backup_dir, recursive=True):
@@ -30,5 +31,6 @@ def migration_old_manifest_to_new_format(backup_dir):
         path_file = Path(backup_dir, file)
         manifest = read_csv_manifet(path_file=path_file)
         json_path_file = Path(backup_dir, file.replace("csv", "json"))
+        manifest["user_name"] = getpass.get_user()
         with open(json_path_file, "w") as json_writer : 
-            json.dump(dict_file, json_writer)
+            json.dump(manifest, json_writer)

@@ -22,7 +22,6 @@ def get_index(backup_dir)->str:
     current_index= max(files_index)
     return '0' * (INDEX_LEN - len(str(current_index + 1))) + str(current_index + 1)
 
-
 def get_user_profile_name()->str:
     return getpass.getuser()
 
@@ -74,7 +73,7 @@ class Archive:
             backup_path = Path(backup_dir, f"{hash_code}.bck")
             if not backup_path.exists():
                 shutil.copy(source_path, backup_path)
-
+                
 class ArchiveIndex(Archive):
     def __init__(self, source_dir):
         super().__init__(source_dir)

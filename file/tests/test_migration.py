@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from ..file import manifest_migration
+from ..file import manifest_migration, migration_old_manifest_to_new_format, read_csv_manifet
 
 MOCK_CSV_MANIFEST_CONTENTS = {
     "0000001.csv": (
@@ -22,6 +22,11 @@ def fs_with_csv_manifest(fs):
         fs.create_file(Path(test_backup_dir, name), contents=csv_string_content)
     return test_backup_dir
 
+
+def test_migration_old_manifest_to_new_format(fs_with_csv_manifest):
+    backup_path = fs_with_csv_manifest
+    migration_old_manifest_to_new_format(backup_path)
+    assert "user_name" in read_csv_manifet
 
 import json
 
