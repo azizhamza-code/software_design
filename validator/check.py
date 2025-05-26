@@ -9,12 +9,16 @@ class Check(Visitor):
         self.problems = {}
 
     def _tag_enter(self, node):
-        actual = {child.name for child in node if isinstance(child, Tag)}
-        errors = actual - self.manifest.get(node.name, set())
-        # If there are any errors, merge them with existing problems for the current node
-        if errors:
-            errors |= self.problems.get(node.name, set())  # Combine current errors with previously recorded problems
-            self.problems[node.name] = errors  # Update the problems dictionary with the combined errors
+        # Get actual child tags
+        actual_children = {child.name for child in node if isinstance(child, Tag)}
+        # Get expected child tags from manifest
+        expected_children = self.manifest.get(node.name, set())
+        # Find unexpected children (errors)
+        unexpected_children = actual_children - expected_children
+        # Store errors if any found
+        if unexpected_children:
+            existing_errors = self.problems.get(node.name, set())
+            self.problems[node.name] = existing_errors | unexpected_children
 
     
 def read_manifest(filename):
