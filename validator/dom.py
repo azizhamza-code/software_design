@@ -1,3 +1,5 @@
+from bs4 import BeautifulSoup, NavigableString, Tag
+
 text = """<html lang="en">
 <body class="outline narrow">
 <p align="left" align="right">paragraph</p>
@@ -13,8 +15,11 @@ def display(node):
         for child in node:
             display(child)
 
-from bs4 import BeautifulSoup, NavigableString, Tag
+if __name__ == '__main__':
 
-doc = BeautifulSoup(text, "html.parser")
-display(doc)
+    doc = BeautifulSoup(text, "html.parser")
+    methods = [method_name for method_name in dir(doc) 
+            if  callable(getattr(doc, method_name))]
+
+    display(doc)
 

@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup, NavigableString, Tag
 
 class Visitor:
+
     def visit(self, node):
         if isinstance(node, NavigableString):
             self._text(node)
