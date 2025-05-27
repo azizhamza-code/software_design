@@ -16,10 +16,9 @@ def display(node):
             display(child)
 
 if __name__ == '__main__':
-
+    import sys
+    with open(sys.argv[1], 'r') as reader :
+        text = reader.read()
     doc = BeautifulSoup(text, "html.parser")
-    methods = [method_name for method_name in dir(doc) 
-            if  callable(getattr(doc, method_name))]
-
     display(doc)
 

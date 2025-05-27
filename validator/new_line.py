@@ -17,6 +17,7 @@ class Document(Visitor):
             node.extract()
 
 if __name__ =='__main__':
+
     import sys
     from bs4 import BeautifulSoup, NavigableString, Tag
     from dom import display
