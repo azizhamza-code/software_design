@@ -27,7 +27,7 @@ def recurse(node, catalog):
 
     return catalog
 
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Tag
 from visitor import Visitor
 
 doc = BeautifulSoup(html, "html.parser")
