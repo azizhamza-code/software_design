@@ -47,14 +47,27 @@ class DfRow(DataFrame):
             for key in row:
                 if key not in other.cols():
                     return False
-                if row[key] != other.get(key, i)
-                return False
+                if row[key] != other.get(key, i):
+                    return False
         return True
         
     def select(self, *names):
         assert all(n in self._data[0] for n in names)
         rows = [{key: r[key] for key in names} for r in self._data]
         return DfRow(rows)
+    
+    def filter(self, func):
+        ''' to filter dataframe row , by func
+            it make a copy of the data
+        '''
+        new_data = []
+        for row in self._data:
+            if func(row):
+                new_data.append(row)
+        return DfRow(new_data)
+    
+
+    
 
 def dict_match(d, prototype):
     if set(d.keys()) != set(prototype.keys()):
