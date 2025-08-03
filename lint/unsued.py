@@ -15,7 +15,6 @@ class FindUnusedVariables(ast.NodeVisitor):
     def visit_FunctionDef(self, node):
         self.search(node.name, node)
 
-
     def search(self, name, node):
         self.stack.append(Scope(name, set(), set()))
         self.generic_visit(node)
