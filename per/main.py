@@ -82,6 +82,47 @@ def dict_match(d, prototype):
     if set(d.keys()) != set(prototype.keys()):
         return False
     return all(type(d[k]) == type(prototype[k]) for k in d)
+
+
+def match(rows, schema):
+    return set(rows[0].keys()) == set(schema) if rows else True
+
+class DfrowE(DfRow):
+    def __init__(self, rows: list[dict], schema: list[str]):
+        self._cols = list(schema)
+        if rows:
+            assert match(rows, schema)
+            super().__init__(rows)  # validate and set _data
+        else:
+            self._data = []         # represent empty rows
+
+    def ncol(self):
+        return len(self._cols)
+
+    def cols(self):
+        return set(self._cols)
+
+    def select(self, *names):
+        assert all(n in self._cols for n in names)
+        projected = [{k: r[k] for k in names} for r in self._data]
+        return DfrowE(projected, list(names))
+
+    def filter(self, func):
+        filtered = [r for r in self._data if func(**r)]
+        return DfrowE(filtered, self._cols)
+
+    def eq(self, other):
+        if not isinstance(other, DataFrame):
+            return False
+        if self.cols() != other.cols():
+            return False
+        # reuse DfRow.eq behavior for values
+        for i, row in enumerate(self._data):
+            for k, v in row.items():
+                if v != other.get(k, i):
+                    return False
+        return True
+        
 class DfCol(DataFrame):
     def __init__(self, **kwargs) -> None:
         assert len(kwargs) > 0 
